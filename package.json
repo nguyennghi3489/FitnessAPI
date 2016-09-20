@@ -1,0 +1,34 @@
+{
+  "name": "fitness-api",
+  "version": "1.0.0",
+  "description": "provide data for fitness website and mobile",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nguyennghi3489/FitnessAPI.git"
+  },
+  "keywords": [
+    "fitness",
+    "api"
+  ],
+  "author": "NguyenNghi3489",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nguyennghi3489/FitnessAPI/issues"
+  },
+  "homepage": "https://github.com/nguyennghi3489/FitnessAPI#readme",
+  "dependencies": {
+    "express": "*",
+    "fs": "*",
+    "path": "*",
+    "body-parser": "*",
+    "jsonwebtoken": "*",
+    "bcrypt-nodejs":"*",
+    "http":"*",
+    "socket.io":"*",
+    "cors":"*"
+  }
+}
