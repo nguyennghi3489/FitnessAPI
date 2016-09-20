@@ -29,6 +29,7 @@
     "bcrypt-nodejs":"*",
     "http":"*",
     "socket.io":"*",
-    "cors":"*"
+    "cors":"*",
+    "morgan":"*"
   }
 }
