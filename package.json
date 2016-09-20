@@ -30,6 +30,8 @@
     "http":"*",
     "socket.io":"*",
     "cors":"*",
-    "morgan":"*"
+    "morgan":"*",
+    "mongoose":"*",
+    "nodemailer":"*"
   }
 }
