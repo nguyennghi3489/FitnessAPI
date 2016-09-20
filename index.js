@@ -28,6 +28,13 @@ app.use(morgan('combined', {stream: accessLogStream}))
 app.use("/app", express.static(path.join(__dirname, 'public')));
 app.use("/image", express.static(path.join(__dirname, 'public/upload')));
 
+//Socket
+var clients = io.on('connection',function(socket){
+    socket.on('a',function(data){
+      console.log(data);
+    });
+});
+
 ///Prepare ModelSchema
 var UserSchema = require('./Schemas/user.js');
 var Activity = require('./Schemas/activity.js');

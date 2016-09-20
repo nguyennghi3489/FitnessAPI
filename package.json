@@ -32,6 +32,9 @@
     "cors":"*",
     "morgan":"*",
     "mongoose":"*",
-    "nodemailer":"*"
+    "nodemailer":"*",
+    "nodemailer-smtp-transport":"*",
+    "mongoose-text-search":"*",
+    "promise":"*"
   }
 }
