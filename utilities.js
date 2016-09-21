@@ -1,26 +1,40 @@
-var nodemailer = require('nodemailer');
-var smtpTransport = require('nodemailer-smtp-transport');
+// load aws sdk
+var aws = require('aws-sdk');
+
+// load aws config
+aws.config.loadFromPath('config.json');
+
+// load AWS SES
+var ses = new aws.SES({apiVersion: '2010-12-01'});
 
 module.exports = {
     sendMail:function(email, token){
-		var transporter = nodemailer.createTransport('smtps://nguyennghi3489@gmail.com:03041989@smtp.gmail.com');
-			console.log(email);
-			// setup e-mail data with unicode symbols
-			var mailOptions = {
-			    from: '<nguyennghi3489@gmail.com>', // sender address
-			    //to: email, // list of receivers
-			    to : 'nguyennghi3489@gmail.com',
-			    subject: 'Hello ✔', // Subject line
-			    text: 'Hello world 🐴', // plaintext body
-			    html: "<b>Hello world 🐴</b>"+ "<a href='http://localhost:3000/api/confirmMail?token="+ token + "' />Click Here to Active Your Account</a>" // html body
-			};
+		// send to list
+		var to = ['nguyennghi3489@gmail.com']
 
-			// send mail with defined transport object
-			transporter.sendMail(mailOptions, function(error, info){
-			    if(error){
-			        return console.log(error);
-			    }
-			    console.log('Message sent: ' + info.response);
-			});
+		// this must relate to a verified SES account
+		var from = 'nguyennghi3489@gmail.com'
+
+		// this sends the email
+		// @todo - add HTML version
+		ses.sendEmail( { 
+		   Source: from, 
+		   Destination: { ToAddresses: to },
+		   Message: {
+		       Subject:Source {
+		          Data: 'A Message To You Rudy'
+		       },
+		       Body: {
+		           Text: {
+		               Data: 'Stop your messing around',
+		           }
+		        }
+		   }
+		}
+		, function(err, data) {
+		    if(err) throw err
+		        console.log('Email sent:');
+		        console.log(data)console;
+		 });
 	}
 };

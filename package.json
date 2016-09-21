@@ -32,8 +32,7 @@
     "cors":"*",
     "morgan":"*",
     "mongoose":"*",
-    "nodemailer":"*",
-    "nodemailer-smtp-transport":"*",
+    "aws-sdk": "*",
     "mongoose-text-search":"*",
     "promise":"*"
   }
