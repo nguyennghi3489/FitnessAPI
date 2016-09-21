@@ -45,7 +45,7 @@ module.exports = function(app) {
 			    }
 			  }
 			  response.writeHead(302, {
-				  'Location': 'http://localhost:8000'
+				  'Location': 'http://52.43.102.187'
 				  //add other headers here...
 			  });
 	          response.end();
