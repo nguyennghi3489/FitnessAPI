@@ -12,7 +12,7 @@ module.exports = {
 			    to : 'nguyennghi22222@gmail.com',
 			    subject: 'Hello ✔', // Subject line
 			    text: 'Hello world 🐴', // plaintext body
-			    html: "<b>Hello world 🐴</b>"+ "<a href='http://http://52.40.15.203/:3000/api/confirmMail?token="+ token + "' />Click Here to Active Your Account</a>" // html body
+			    html: "<b>Hello world 🐴</b>"+ "<a href='http://52.40.15.203:3000/api/confirmMail?token="+ token + "' />Click Here to Active Your Account</a>" // html body
 			};
 
 			// send mail with defined transport object
