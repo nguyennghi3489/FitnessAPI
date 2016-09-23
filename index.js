@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var morgan    = require('morgan');
 var Schema = mongoose.Schema;
-var url = 'mongodb://localhost:27017/test';
+var url = 'mongodb://52.43.201.76:27017/test';
 var jwt    = require('jsonwebtoken');
 var config = require('./config.js');
 var bcrypt = require('bcrypt-nodejs');
@@ -17,7 +17,13 @@ var io = require('socket.io')(server);
 var cors = require('cors');
 
 //Connect Mongo
-mongoose.connect(url);
+mongoose.connect(url, function(err, conn){
+  if(err)
+    console.error('error: ', err.message);
+  else
+    console.log('holysheet');
+});
+
 app.set('superSecret', config.secret);
 // create a write stream (in append mode)
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
@@ -206,6 +212,7 @@ apiRoutes.post('/authenticate', function(request, response){
 })
 
 apiRoutes.post('/avatarUpload', function(req,res){
+  console.log(req.body);
   var data = req.body.data;
   var filename = req.body.filename;
   var filePart = filename.split(".");
