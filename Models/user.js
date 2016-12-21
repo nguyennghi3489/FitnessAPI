@@ -12,7 +12,7 @@ module.exports = {
 		data.email = object.email;
 		data.gender = object.gender;
 		//Skills
-		data.quotes = object.quotes;
+		data.quote = object.quote;
 		data.xDescription = object.description;
 		data.major = object.major;
 		//System
@@ -21,5 +21,14 @@ module.exports = {
 		data.isAdmin = false;
 		data.type = 1;
 		return data;
-	}	
+	},
+	createForUpdate: function(object){
+		var data = {};
+		data.firstname = object.firstname;
+		data.lastname = object.lastname;
+		data.fullname = data.firstname + " " + data.lastname;
+		data.quote = object.quote;
+		data.xDescription = object.description;
+		return data;
+	}
 }

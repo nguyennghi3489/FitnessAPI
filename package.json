@@ -34,6 +34,7 @@
     "mongoose":"*",
     "aws-sdk": "*",
     "mongoose-text-search":"*",
-    "promise":"*"
+    "promise":"*",
+    "node-opensignal-api":"*"
   }
 }

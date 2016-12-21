@@ -6,10 +6,11 @@ var Schema = mongoose.Schema;
 var bookingSchema = new Schema({
   userId:  { type: Schema.Types.ObjectId, ref: 'User' },
   trainerId:  { type: Schema.Types.ObjectId, ref: 'User' },
-  activityId: { type: Schema.Types.ObjectId, ref: 'Activity' },
+  activity: { type: Schema.Types.ObjectId, ref: 'Activity' },
+  message: String,
   status:   Number,
   date :Date
-}).index({userId: 1,activityId:1},{ unique: true });
+}).index({userId: 1,activity:1},{ unique: true });
 
 var booking = mongoose.model('Booking', bookingSchema);
 

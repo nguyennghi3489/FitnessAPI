@@ -8,21 +8,36 @@ var EventEmitter = require('events').EventEmitter;
 var ActiviyModel = require('../Models/activity.js');
 var LocationModel = require('../Models/location.js');
 
-var promise = require('promise');
+var onesignal = require('node-opensignal-api');
+var onesignal_client = onesignal.createClient();
+var Promise = require('promise');
 var logger = new EventEmitter();
+
+var restApiKey = 'YTBkM2Y4ZjQtMTVkNy00ODhlLTg4NGQtMWViZWYxYzI5YzM3';
+
 module.exports = function(app, clients) {
-  app.get('/activity', function(request, response) {
+    app.get('/activity', function(request, response) {
       var condition = {};
       if(request.query.userId){
-        condition["userId"] = request.query.userId;
+        condition["owner"] = request.query.userId;
       }
-      Activity.find(condition, function(err, activities) {
+      ActivitySchema.find(condition, function(err, activities) {
         if (!err){ 
             response.send(activities);
         } else {throw err;}
       });
     });
-
+    app.post('/activity/coachId', function(request, response) {
+      console.log("SHOULD GO HERE");
+        ActivitySchema.find({"owner":request.body.coachId})
+        .populate('owner')
+        .populate('location')
+        .exec(function (err, activities) {
+          if (!err){ 
+            response.send(activities);
+          } else {throw err;}
+        });
+    });
     app.post('/activity', function(request, response) {
       if (!request.body) return response.sendStatus(400);
       var locationId;        
@@ -52,7 +67,6 @@ module.exports = function(app, clients) {
         else{
           resolve(false);
         }
-
       });
 
       p2.then(function(value) {
@@ -77,7 +91,7 @@ module.exports = function(app, clients) {
       var dateInput = new Date(request.body.date);
       var condition = {};
       console.log("DATE INPUT HERE-----------------------------");
-      console.log(request.body.date);
+      console.log(request.body);
       console.log(dateInput);
       if(request.body.date){
         condition["date"] = {"$eq": dateInput };
@@ -102,9 +116,15 @@ module.exports = function(app, clients) {
       populate('location').
       limit(10).exec(function(err, person){
         response.send(person);
+        // Promise.resolve(person).then(function(activity){
+        //   addInformationForConnect(activity)
+        // }).
+        // then(function(activity){
+        //   response.send(activity);
+        // })
       });
     });
-
+    
     app.get('/activity/get', function(request, response) {
       if(request.query.userId){
         Activity.find({"userId":{$ne: request.query.userId}}).populate('userId').exec(function (err, activities) {
@@ -127,29 +147,28 @@ module.exports = function(app, clients) {
       console.log(request.body);
       data.userId = request.body.userId;
       data.trainerId = request.body.trainerId;
-      data.activityId = request.body.activityId;
+      data.activity = request.body.activity;
+      data.message = request.body.message;
       data.link = request.body.link;
       data.status = 0;
       data.date = request.body.date;
 
-      User.findOne({_id: request.body.userId},function(err, user){
-         data.userId = user._id;
-      })
-      Activity.findOne({_id: request.body.activityId},function(err, activity){
-         data.activityId = activity._id;
-      })
-
-      booking = new Booking(data);
-      booking.save(function (err, booking) {
-        console.log(booking);
-        if(booking !== undefined){
-          clients.emit('request',data);  
-          response.send("true");
+      console.log(data);
+      isRegisted(data.userId, data.trainerId, data.activity).then(function(isRegisted) {
+        if(isRegisted){
+          handleError("{code:11000}",response);
         }
-        if (err) return handleError(err,response);
-        // saved!
-        
-      })
+        else{
+          booking = new Booking(data);
+          booking.save(function (err, booking) {
+            if(booking !== undefined){
+              clients.emit('request',data);  
+              response.send({"success":true});
+            }
+            if (err) return handleError(err,response);
+          })
+        }
+      });
     });
 
     app.post('/activity/approve', function(request, response){
@@ -157,15 +176,30 @@ module.exports = function(app, clients) {
       console.log(request.body);
       var conditions = {};
       
-      conditions.trainerId = request.body.trainerId;
+      // conditions.trainerId = request.body.trainerId;
       conditions._id = request.body.id;
       var update = { $set: {status:1}}
       Booking.findOneAndUpdate(conditions, update, function(err,item){
-        console.log("FK U");
-        console.log(item);
         if(typeof item !== undefined){
-          console.log("GO HERE");
-          response.send("true");
+          console.log(item);
+          var params = {
+              app_id: '4e3a4d65-55c7-457d-9882-1bddb3a8ff7c',
+              contents: {
+                  'en': 'Notification body',
+                  'es': 'Cuerpo de la notificación'
+              },
+              tags: [{ "key": "userId", "relation": "=", "value": item.userId}]
+          };
+
+          onesignal_client.notifications.create(restApiKey, params, function (err, response) {
+              if (err) {
+                console.log('Encountered error', err);
+              } else {
+                
+                console.log(response);
+              }
+          });
+          response.send({"success":true});
         }
         if(err){
           console.log("OR FAIL");
@@ -177,7 +211,7 @@ module.exports = function(app, clients) {
     app.get('/activity/registed', function(request, response) {
       console.log(request.query);
       Booking.find({"userId":request.query.userId})
-      .populate('activityId')
+      .populate('activity')
       .exec(function (err, story) {
         if (!err){ 
             response.send(story);
@@ -185,6 +219,69 @@ module.exports = function(app, clients) {
       });
     });
 
+    app.post('/activity/session', function(request, response) {
+      console.log("SESSION");
+      console.log(request.body);
+      Booking.find({"userId":request.body.userId})
+      .lean()
+      .populate({
+        path: 'activity',
+        populate: [{
+          path: 'location',
+          model: 'Location'
+        },
+        {
+          path: 'owner',
+          model: 'User'
+        }]
+      })
+      .exec(function (err, story) {
+        if (!err){ 
+            response.send(story);
+        } else {throw err;}
+      });
+    });
+
+    app.post('/activity/statisticSession', function(request, response) {
+      console.log("SESSION");
+      console.log(request.body);
+      Booking.aggregate(
+      [
+          // Grouping pipeline
+          { "$group": { 
+              "_id": '$userId', 
+              "recommendCount": { "$sum": 1 }
+          }},
+          // Sorting pipeline
+          { "$sort": { "recommendCount": -1 } },
+          // Optionally limit results
+          { "$limit": 5 }
+      ],function (err, story) {
+        if (!err){ 
+            response.send(story);
+        } else {throw err;}
+      });
+    });
+
+    function isRegisted(userId, trainerId, activity){
+      var data = {};
+      data.userId = userId;
+      data.trainerId = trainerId;
+      data.activity = activity;
+      console.log("REGISTER");
+      console.log(data);
+      return Booking.find(data).then(function(item){
+        console.log(item);
+        if(item.length > 0){
+          console.log("EXISTED");
+          return Promise.resolve(true);
+        }
+        else{
+          return Promise.resolve(false);
+        }
+      })
+
+    }
     function handleError(error, response){
       console.log(error);
       response.json({

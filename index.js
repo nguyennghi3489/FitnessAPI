@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var morgan    = require('morgan');
 var Schema = mongoose.Schema;
-var url = 'mongodb://52.43.201.76:27017/test';
+var url = 'mongodb://localhost:27017/fitness';
 var jwt    = require('jsonwebtoken');
 var config = require('./config.js');
 var bcrypt = require('bcrypt-nodejs');
@@ -40,6 +40,7 @@ var clients = io.on('connection',function(socket){
       console.log(data);
     });
 });
+
 
 ///Prepare ModelSchema
 var UserSchema = require('./Schemas/user.js');
@@ -123,6 +124,7 @@ apiRoutes.post('/user/fbsignup', function(request, response) {
   var data = {};
   data.email = request.body.email;
   data.link = request.body.link;
+  data.type = 2;
   data.fullname = request.body.fullname;
   data.type = parseInt(request.body.userType);
   data.baseImageUrl = request.body.avatar;
@@ -156,6 +158,7 @@ function handleFBError(error, response, email){
     expiresIn: 100 // expires in 24 hours
   });
   UserSchema.findOne({email:email},function(err,user){
+    console.log("EXISTED");
     response.json({
       success: false,
       userId: user._id,
